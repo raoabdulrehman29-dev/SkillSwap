@@ -51,6 +51,7 @@ defineProps({
                     <DeleteUserForm class="max-w-xl" />
                 </div>
             </div>
+            <h1>hello guysnow i'm in the master branch</h1>
         </div>
     </AuthenticatedLayout>
 </template>
