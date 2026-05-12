@@ -52,6 +52,7 @@ defineProps({
                 </div>
             </div>
             <h1>hello guysnow i'm in the master branch</h1>
+            <h1>let's start  learning about stash </h1>
         </div>
     </AuthenticatedLayout>
 </template>
