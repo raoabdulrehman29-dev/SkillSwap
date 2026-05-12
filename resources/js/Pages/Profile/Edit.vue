@@ -51,8 +51,10 @@ defineProps({
                     <DeleteUserForm class="max-w-xl" />
                 </div>
             </div>
-            <h1>hello guysnow i'm in the master branch</h1>
-            <h1>let's start  learning about stash </h1>
+            <h1>Hello i'm in feature  branch</h1>
+            <h1>this is the first commit fro rebasing</h1>
+            <h1>this the second commit fro rebase</h1>
         </div>
     </AuthenticatedLayout>
 </template>
+``
