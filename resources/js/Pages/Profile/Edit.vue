@@ -54,6 +54,7 @@ defineProps({
             <h1>Hello i'm in feature  branch</h1>
             <h1>this is the first commit fro rebasing</h1>
             <h1>this the second commit fro rebase</h1>
+            <p>let's learn about the git diff command</p>
         </div>
     </AuthenticatedLayout>
 </template>
