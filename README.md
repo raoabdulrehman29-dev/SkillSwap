@@ -1,1 +1,1 @@
-thsiis the readme fiel fro Skill Swap
+thsi is the readme file for Skill Swap
