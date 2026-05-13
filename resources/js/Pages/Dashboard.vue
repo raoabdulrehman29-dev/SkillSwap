@@ -24,7 +24,7 @@ import { Head } from '@inertiajs/vue3';
     </nav>
   </aside>
 
-<h1>ok so this is the first commit while checkign pull request</h1>
+
 
   <!-- Main Content -->
   <main class="flex-1 overflow-y-auto">
