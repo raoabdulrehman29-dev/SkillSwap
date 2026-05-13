@@ -24,8 +24,6 @@ import { Head } from '@inertiajs/vue3';
     </nav>
   </aside>
 
-<h1>hello you want to make a pull request</h1>
-
   <!-- Main Content -->
   <main class="flex-1 overflow-y-auto">
     <!-- Top Header -->
