@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
   
 Route::get('/skills/{skill}/edit', [SkillController::class, 'edit'])->name('skills.edit');
 Route::post('/skills/{skill}/request',[SkillRequestController::class,'store'])->name('skill.request');
+Route::get('/skills/{id}/delete',[SkillController::class,'destroy'])->name('skills.delete');
 
 Route::patch('/skills/{skill}', [SkillController::class, 'update'])->name('skills.update');
 });

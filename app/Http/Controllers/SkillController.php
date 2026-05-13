@@ -40,6 +40,8 @@ class SkillController extends Controller
         ]);
 
         Auth::user()->skills()->create($validated);
+        $request->user()->gainrepotation(20);
+         
 
         return redirect()->route('skills.my')->with('message', 'Skill added successfully');
     }
@@ -68,6 +70,17 @@ class SkillController extends Controller
         return redirect()->route('skills.my')->with('message', 'Skill updated successfully');
     }
 
+    public function destroy(request $request,$id){
+       $skill=Skill::findOrFail($id);
+      if($skill->user_id != $request->user()->id)
+        {
+            return back()->with('unauthorize access', 403);
+        }
+$skill->delete();
+$request->user()->loserepotation(20);
+return redirect()->route('skills.my');
+
+    }
 
 
 

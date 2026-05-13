@@ -1,6 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
+// Access all data sent from the controller
+
+
 </script>
 
 <template>
@@ -14,7 +17,17 @@ import { Head } from '@inertiajs/vue3';
                 Dashboard
             </h2>
         </template>
-      
+      <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            
+          
+
+            </div>
+    </div>
+
+
+
+
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">

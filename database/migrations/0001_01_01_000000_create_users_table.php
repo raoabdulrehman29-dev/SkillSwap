@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            $table->integer('repotation')->default(0);
             $table->boolean('is_admin')->default(false);
             $table->boolean('profile_completed')->default(false);
             $table->integer('trust_score')->default(0);

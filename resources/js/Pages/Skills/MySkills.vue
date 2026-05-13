@@ -44,7 +44,9 @@ defineProps({
                             <Link :href="route('skills.edit', skill.id)" class="text-sm text-indigo-600 hover:underline">
                                 Edit
                             </Link>
-                            <button class="text-sm text-red-600 hover:underline">Delete</button>
+                             <Link :href="route('skills.delete', skill.id)" class="text-sm text-indigo-600 hover:underline">
+                                Delete
+                            </Link>
                         </div>
                     </div>
                 </div>

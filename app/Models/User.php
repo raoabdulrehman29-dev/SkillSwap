@@ -42,7 +42,13 @@ public function SkillRequests(){
     return $this->hasMany(SkillRequest::class);
 }
 
-// public function skills1(){
-//  return $this->hasMany(Skill::class);
-// }
+public function gainrepotation(int $amount){
+    $this->increment('repotation', $amount);
+}
+
+public function loserepotation(int $amount){
+    $this->repotation=max(0, $this->repotation-$amount);
+    $this->save();
+
+}
 }
