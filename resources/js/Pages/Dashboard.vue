@@ -1,4 +1,12 @@
-<div class="min-h-screen bg-gray-50 flex">
+<script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head } from '@inertiajs/vue3';
+</script>
+
+<template>
+    <Head title="Dashboard" />
+
+   <div class="min-h-screen bg-gray-50 flex">
   <!-- Sidebar -->
   <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
     <div class="p-6">
@@ -120,3 +128,5 @@
     </div>
   </main>
 </div>
+
+</template>
