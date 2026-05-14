@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,26 +29,25 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-public function update(Request $request)
+    public function update(Request $request): RedirectResponse
+    {
+        $user = $request->user();
 
-
-{
-    $user=$request->user();
-    $validated=$request->validate(
-        [
-            'name' => 'string|max:255|required',
-            'email' => 'string|required|email|unique:users,email'.$user->id,
-
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', Rule::unique('users', 'email')->ignore($user->id)],
         ]);
+
         $user->fill($validated);
-        if($request->user()->isdirty('email')){
-            $request->user()->email_verified_at=null;
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
         $user->save();
-        return redirect()->back()->with('succces','profile updaetd');
 
-}
+        return Redirect::route('profile.edit')->with('success', 'Profile updated.');
+    }
 
 
     public function update1(ProfileUpdateRequest $request): RedirectResponse

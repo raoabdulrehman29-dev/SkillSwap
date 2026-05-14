@@ -1,5 +1,5 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 
 defineProps({
@@ -10,25 +10,24 @@ defineProps({
 <template>
     <Head title="My Skills" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <div class="flex justify-between items-center">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">My Skills</h2>
-                <Link :href="route('skills.create')" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
-                    + Add New Skill
-                </Link>
-            </div>
+    <DashboardLayout
+        title="My Skills"
+        subtitle="Manage the skills you are offering or hoping to learn."
+    >
+        <template #actions>
+            <Link :href="route('skills.create')" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-sm shadow-indigo-200 transition hover:bg-indigo-700">
+                Add Skill
+            </Link>
         </template>
 
-        <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div v-if="skills.length === 0" class="bg-white p-6 text-center rounded-lg shadow">
-                    <p class="text-gray-500">You haven't posted any skills yet.</p>
-                </div>
+        <div v-if="skills.length === 0" class="motion-card border border-slate-200 bg-white p-8 text-center">
+            <p class="text-lg font-black text-slate-900">You have not posted any skills yet.</p>
+            <p class="mt-2 text-sm text-slate-500">Add your first skill to start matching with the community.</p>
+        </div>
 
-                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div v-for="skill in skills" :key="skill.id" class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4" 
-                         :class="skill.type === 'offering' ? 'border-green-500' : 'border-blue-500'">
+        <div v-else class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    <div v-for="skill in skills" :key="skill.id" class="motion-card bg-white p-6 border border-slate-200 border-l-4" 
+                         :class="skill.type === 'offering' ? 'border-l-green-500' : 'border-l-blue-500'">
                         <div class="flex justify-between items-start">
                             <span class="text-xs font-bold uppercase tracking-widest px-2 py-1 rounded bg-gray-100">
                                 {{ skill.category }}
@@ -49,8 +48,6 @@ defineProps({
                             </Link>
                         </div>
                     </div>
-                </div>
-            </div>
         </div>
-    </AuthenticatedLayout>
+    </DashboardLayout>
 </template>

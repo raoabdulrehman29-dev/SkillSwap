@@ -12,12 +12,14 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Booking;
 
 
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
+  
     use HasFactory, Notifiable;
     
 protected $guarded = [];
@@ -50,5 +52,15 @@ public function loserepotation(int $amount){
     $this->repotation=max(0, $this->repotation-$amount);
     $this->save();
 
+}
+
+public function mentorBookings(): HasMany
+{
+    return $this->hasMany(Booking::class, 'mentor_id');
+}
+
+public function studentBookings(): HasMany
+{
+    return $this->hasMany(Booking::class, 'student_id');
 }
 }

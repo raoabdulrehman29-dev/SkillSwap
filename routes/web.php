@@ -1,10 +1,14 @@
 <?php
 
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\SkillRequestController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MilestoneController;
 use Illuminate\Validation\Rules\Can;
 use Inertia\Inertia;
 
@@ -17,9 +21,9 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -36,9 +40,11 @@ Route::post('/skills/{skill}/request',[SkillRequestController::class,'store'])->
 Route::get('/skills/{id}/delete',[SkillController::class,'destroy'])->name('skills.delete');
 
 Route::patch('/skills/{skill}', [SkillController::class, 'update'])->name('skills.update');
+
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+Route::patch('/milestones/{milestone}/toggle', [MilestoneController::class, 'toggle'])->name('milestones.toggle');
 });
-// Middleware with Gate 
-// Route::get('/gate',[SkillController::class,'gate'])->name('gate')->middleware('auth');
 
 //COntroller Gate Code
 Route::get('/gate', [SkillController::class, 'gate'])

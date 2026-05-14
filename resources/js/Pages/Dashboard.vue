@@ -1,132 +1,244 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const props = defineProps({
+    teaching: {
+        type: Array,
+        default: () => [],
+    },
+    learning: {
+        type: Array,
+        default: () => [],
+    },
+});
+
+const allBookings = computed(() => [...props.teaching, ...props.learning]);
+const pendingTeaching = computed(() => props.teaching.filter((booking) => booking.status === 'pending'));
+const activeBookings = computed(() => allBookings.value.filter((booking) => ['confirmed', 'completed'].includes(booking.status)));
+const pendingLearning = computed(() => props.learning.filter((booking) => booking.status === 'pending'));
+
+const statusClasses = {
+    pending: 'bg-amber-50 text-amber-700',
+    confirmed: 'bg-indigo-50 text-indigo-700',
+    completed: 'bg-emerald-50 text-emerald-700',
+    cancelled: 'bg-rose-50 text-rose-700',
+};
+
+const progressFor = (booking) => {
+    if (!booking.milestones?.length) return 0;
+
+    const completed = booking.milestones.filter((milestone) => milestone.is_completed).length;
+    return Math.round((completed / booking.milestones.length) * 100);
+};
+
+const formatDate = (value) => {
+    if (!value) return 'Not scheduled';
+
+    return new Intl.DateTimeFormat('en', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+    }).format(new Date(value));
+};
+
+const updateBookingStatus = (booking, status) => {
+    router.patch(route('bookings.updateStatus', booking.id), { status }, {
+        preserveScroll: true,
+    });
+};
+
+const toggleMilestone = (milestone) => {
+    router.patch(route('milestones.toggle', milestone.id), {}, {
+        preserveScroll: true,
+    });
+};
 </script>
 
 <template>
     <Head title="Dashboard" />
 
-   <div class="min-h-screen bg-gray-50 flex">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
-    <div class="p-6">
-      <span class="text-2xl font-bold text-indigo-600">SkillSwap</span>
-    </div>
-    <nav class="flex-1 px-4 space-y-2">
-      <a href="#" class="flex items-center p-3 bg-indigo-50 text-indigo-700 rounded-lg font-medium">
-        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1  1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-        Dashboard
-      </a>
-      <a href="#" class="flex items-center p-3 text-gray-600 hover:bg-gray-100 rounded-lg transition">
-        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-        Marketplace
-      </a>
-    </nav>
-  </aside>
+    <DashboardLayout
+        title="Dashboard"
+        subtitle="Manage booking requests, swap progress, and milestones from one place."
+    >
+        <template #actions>
+            <Link
+                :href="route('marketplace')"
+                class="hidden rounded-md bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-sm shadow-indigo-200 transition hover:bg-indigo-700 sm:inline-flex"
+            >
+                Find Swaps
+            </Link>
+        </template>
 
-  <!-- Main Content -->
-  <main class="flex-1 overflow-y-auto">
-    <!-- Top Header -->
-    <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center sticky top-0 z-10">
-      <h1 class="text-xl font-semibold text-gray-800">Welcome back, Abdul Rehman!</h1>
-      <div class="flex items-center space-x-4">
-        <!-- Reputation Badge -->
-        <div class="flex items-center bg-indigo-100 px-3 py-1.5 rounded-full">
-          <span class="text-indigo-700 text-sm font-bold">{{ auth.user.repotation }} XP</span>
-        </div>
-        <div class="h-10 w-10 rounded-full bg-indigo-500 border-2 border-white shadow-sm"></div>
-      </div>
-    </header>
-
-    <div class="p-8 max-w-7xl mx-auto space-y-8">
-      
-      <!-- Stats Overview -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <p class="text-sm font-medium text-gray-500">Total Skills Listed</p>
-          <h3 class="text-3xl font-bold mt-1">12</h3>
-          <p class="text-green-500 text-xs mt-2 font-semibold">+2 this week</p>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <p class="text-sm font-medium text-gray-500">Active Swaps</p>
-          <h3 class="text-3xl font-bold mt-1">4</h3>
-          <p class="text-indigo-500 text-xs mt-2 font-semibold">2 pending approval</p>
-        </div>
-        <div class="bg-indigo-600 p-6 rounded-2xl shadow-lg text-white">
-          <p class="text-sm font-medium text-indigo-100">Community Rank</p>
-          <h3 class="text-3xl font-bold mt-1">Expert</h3>
-          <div class="w-full bg-indigo-400 h-1.5 mt-4 rounded-full">
-            <div class="bg-white h-1.5 rounded-full w-3/4"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Layout: Skills & Activities -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- Left: My Skills Table -->
-        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100">
-          <div class="p-6 border-b border-gray-50 flex justify-between items-center">
-            <h2 class="font-bold text-gray-800">My Skill Listings</h2>
-            <button class="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-              + Add New Skill
-            </button>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left">
-              <thead>
-                <tr class="text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50">
-                  <th class="px-6 py-4">Skill Name</th>
-                  <th class="px-6 py-4">Status</th>
-                  <th class="px-6 py-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-100">
-                <tr class="hover:bg-gray-50 transition">
-                  <td class="px-6 py-4 font-medium text-gray-700">ReactJS Development</td>
-                  <td class="px-6 py-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-md">Live</span></td>
-                  <td class="px-6 py-4 text-red-500 hover:underline cursor-pointer">Delete</td>
-                </tr>
-                <tr class="hover:bg-gray-50 transition">
-                  <td class="px-6 py-4 font-medium text-gray-700">Tailwind UI Design</td>
-                  <td class="px-6 py-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-md">Pending</span></td>
-                  <td class="px-6 py-4 text-red-500 hover:underline cursor-pointer">Delete</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Right: Recent Reputation Gains -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100">
-          <div class="p-6 border-b border-gray-50">
-            <h2 class="font-bold text-gray-800">Recent Activity</h2>
-          </div>
-          <div class="p-6 space-y-6">
-            <div class="flex items-start">
-              <div class="p-2 bg-green-100 rounded-lg mr-4">
-                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-800">Added New Skill</p>
-                <p class="text-xs text-gray-500">+20 XP Earned</p>
-              </div>
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <article class="motion-card border border-slate-200 bg-white p-5">
+                    <p class="text-sm font-semibold text-slate-500">Teaching</p>
+                    <h2 class="mt-3 text-4xl font-black text-slate-950">{{ teaching.length }}</h2>
+                </article>
+                <article class="motion-card border border-slate-200 bg-white p-5">
+                    <p class="text-sm font-semibold text-slate-500">Learning</p>
+                    <h2 class="mt-3 text-4xl font-black text-slate-950">{{ learning.length }}</h2>
+                </article>
+                <article class="motion-card border border-slate-200 bg-white p-5">
+                    <p class="text-sm font-semibold text-slate-500">Pending review</p>
+                    <h2 class="mt-3 text-4xl font-black text-slate-950">{{ pendingTeaching.length }}</h2>
+                </article>
+                <article class="motion-card border border-indigo-200 bg-indigo-600 p-5 text-white shadow-sm shadow-indigo-200">
+                    <p class="text-sm font-semibold text-indigo-100">Active progress</p>
+                    <h2 class="mt-3 text-4xl font-black">{{ activeBookings.length }}</h2>
+                </article>
             </div>
-            <div class="flex items-start">
-              <div class="p-2 bg-indigo-100 rounded-lg mr-4">
-                <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"></path></svg>
-              </div>
-              <div>
-                <p class="text-sm font-semibold text-gray-800">Helpful Answer</p>
-                <p class="text-xs text-gray-500">+10 XP Earned</p>
-              </div>
-            </div>
-          </div>
+
+            <section class="motion-card border border-slate-200 bg-white">
+                <div class="border-b border-slate-100 p-5">
+                    <h2 class="text-lg font-black text-slate-950">Requests waiting for you</h2>
+                    <p class="mt-1 text-sm text-slate-500">Accept or cancel requests from students who want to work with you.</p>
+                </div>
+
+                <div v-if="pendingTeaching.length" class="divide-y divide-slate-100">
+                    <div v-for="booking in pendingTeaching" :key="booking.id" class="grid gap-4 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h3 class="font-black text-slate-950">{{ booking.skill?.title ?? 'Skill swap' }}</h3>
+                                <span class="rounded-md px-2 py-1 text-xs font-bold capitalize" :class="statusClasses[booking.status]">
+                                    {{ booking.status }}
+                                </span>
+                            </div>
+                            <p class="mt-2 text-sm text-slate-500">
+                                {{ booking.student?.name ?? 'Student' }} wants a session from
+                                {{ formatDate(booking.start_time) }} to {{ formatDate(booking.end_time) }}.
+                            </p>
+                            <p class="mt-2 text-sm font-semibold text-slate-700">
+                                {{ booking.milestones?.length ?? 0 }} milestones proposed
+                            </p>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="button" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-indigo-700" @click="updateBookingStatus(booking, 'confirmed')">
+                                Accept
+                            </button>
+                            <button type="button" class="rounded-md border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600" @click="updateBookingStatus(booking, 'cancelled')">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else class="p-8 text-center">
+                    <p class="font-bold text-slate-800">No pending teaching requests.</p>
+                    <p class="mt-1 text-sm text-slate-500">New requests will show up here.</p>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+                <div class="space-y-6 xl:col-span-2">
+                    <article
+                        v-for="booking in activeBookings"
+                        :key="booking.id"
+                        class="motion-card border border-slate-200 bg-white"
+                    >
+                        <div class="border-b border-slate-100 p-5">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <h3 class="text-lg font-black text-slate-950">{{ booking.skill?.title ?? 'Skill swap' }}</h3>
+                                    <p class="mt-1 text-sm text-slate-500">
+                                        {{ formatDate(booking.start_time) }} to {{ formatDate(booking.end_time) }}
+                                    </p>
+                                </div>
+                                <span class="rounded-md px-2 py-1 text-xs font-bold capitalize" :class="statusClasses[booking.status]">
+                                    {{ booking.status }}
+                                </span>
+                            </div>
+
+                            <div class="mt-5">
+                                <div class="flex items-center justify-between text-sm font-bold text-slate-600">
+                                    <span>Milestone progress</span>
+                                    <span>{{ progressFor(booking) }}%</span>
+                                </div>
+                                <div class="mt-2 h-2 rounded-full bg-slate-100">
+                                    <div class="h-2 rounded-full bg-indigo-600 transition-all duration-500" :style="{ width: `${progressFor(booking)}%` }"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="divide-y divide-slate-100">
+                            <label
+                                v-for="milestone in booking.milestones"
+                                :key="milestone.id"
+                                class="flex cursor-pointer items-start gap-3 p-5 transition hover:bg-slate-50"
+                            >
+                                <input
+                                    type="checkbox"
+                                    class="mt-1 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                    :checked="milestone.is_completed"
+                                    @change="toggleMilestone(milestone)"
+                                >
+                                <span class="min-w-0">
+                                    <span class="block font-bold text-slate-900" :class="{ 'line-through opacity-60': milestone.is_completed }">
+                                        {{ milestone.title }}
+                                    </span>
+                                    <span v-if="milestone.description" class="mt-1 block text-sm text-slate-500">
+                                        {{ milestone.description }}
+                                    </span>
+                                    <span v-if="milestone.completed_at" class="mt-1 block text-xs font-semibold text-emerald-600">
+                                        Completed {{ formatDate(milestone.completed_at) }}
+                                    </span>
+                                </span>
+                            </label>
+                        </div>
+                    </article>
+
+                    <div v-if="!activeBookings.length" class="motion-card border border-slate-200 bg-white p-8 text-center">
+                        <p class="text-lg font-black text-slate-900">No active swaps yet</p>
+                        <p class="mt-2 text-sm text-slate-500">Confirmed bookings and milestone progress will appear here.</p>
+                        <Link :href="route('marketplace')" class="mt-5 inline-flex rounded-md bg-indigo-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-indigo-700">
+                            Browse marketplace
+                        </Link>
+                    </div>
+                </div>
+
+                <aside class="space-y-6">
+                    <section class="motion-card border border-slate-200 bg-white">
+                        <div class="border-b border-slate-100 p-5">
+                            <h2 class="text-lg font-black text-slate-950">Your pending requests</h2>
+                            <p class="mt-1 text-sm text-slate-500">Requests you sent to other members.</p>
+                        </div>
+
+                        <div v-if="pendingLearning.length" class="divide-y divide-slate-100">
+                            <div v-for="booking in pendingLearning" :key="booking.id" class="p-5">
+                                <p class="font-bold text-slate-900">{{ booking.skill?.title ?? 'Skill swap' }}</p>
+                                <p class="mt-1 text-sm text-slate-500">Waiting for {{ booking.mentor?.name ?? 'mentor' }}</p>
+                                <button type="button" class="mt-3 text-sm font-bold text-red-600" @click="updateBookingStatus(booking, 'cancelled')">
+                                    Cancel request
+                                </button>
+                            </div>
+                        </div>
+
+                        <div v-else class="p-5 text-sm text-slate-500">
+                            You do not have pending outgoing requests.
+                        </div>
+                    </section>
+
+                    <section class="motion-card border border-slate-200 bg-white p-5">
+                        <h2 class="text-lg font-black text-slate-950">Quick actions</h2>
+                        <div class="mt-4 space-y-3">
+                            <Link :href="route('marketplace')" class="block rounded-md border border-slate-200 p-4 font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                                Browse marketplace
+                            </Link>
+                            <Link :href="route('skills.create')" class="block rounded-md border border-slate-200 p-4 font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                                Post a skill
+                            </Link>
+                            <Link :href="route('skills.my')" class="block rounded-md border border-slate-200 p-4 font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700">
+                                Manage skills
+                            </Link>
+                        </div>
+                    </section>
+                </aside>
+            </section>
         </div>
-
-      </div>
-    </div>
-  </main>
-</div>
-
+    </DashboardLayout>
 </template>
